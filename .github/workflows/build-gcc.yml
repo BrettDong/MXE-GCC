@@ -1,4 +1,4 @@
-name: Build GCC
+name: Build MXE
 
 on:
   push:
@@ -6,27 +6,31 @@ on:
       - master
 
 jobs:
-  build-gcc:
-    name: Build GCC
+  build-mxe:
+    name: Build MXE
     runs-on: ubuntu-20.04
     steps:
       - name: Install dependencies
         run: |
           sudo apt update
           sudo apt install -y autoconf automake autopoint bash bison bzip2 flex g++ g++-multilib gettext git gperf intltool libc6-dev-i386 libgdk-pixbuf2.0-dev libltdl-dev libssl-dev libtool-bin libxml-parser-perl lzip make openssl p7zip-full patch perl python ruby sed unzip wget xz-utils
-      - name: Clone MXE
+      - name: Clone MXE Repo
         run: |
           git clone https://github.com/mxe/mxe
-      - name: Build cross GCC
+      - name: Build GCC 11
         working-directory: ./mxe
         run: |
           make MXE_TARGETS=x86_64-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 gcc
+      - name: Build SDL
+        working-directory: ./mxe
+        run: |
+          make MXE_TARGETS=x86_64-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 sdl2 sdl2-ttf sdl2-image sdl2-mixer
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: cross-gcc
-          path: ./mxe
-      - name: Verify cross GCC
+          path: ./mxe/usr
+      - name: Verify MXE GCC
         run: |
-          ls -l ./mxe/usr/bin
+          ./mxe/usr/bin/x86_64-w64-mingw32.static.gcc11-g++ -v
 
