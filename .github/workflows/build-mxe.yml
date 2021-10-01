@@ -1,0 +1,72 @@
+name: Build MXE
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-mxe:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Build MXE (x86)
+            arch: i686
+            wine: wine
+          - name: Build MXE (x64)
+            arch: x86_64
+            wine: wine64
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y autoconf automake autopoint bash bison bzip2 flex g++ g++-multilib gettext git gperf intltool libc6-dev-i386 libgdk-pixbuf2.0-dev libltdl-dev libssl-dev libtool-bin libxml-parser-perl lzip make openssl p7zip-full patch perl python ruby sed unzip wget xz-utils
+      - name: Clone MXE Repo
+        working-directory: /opt
+        run: |
+          sudo git clone https://github.com/mxe/mxe
+      - name: Build GCC 11
+        working-directory: /opt/mxe
+        run: |
+          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 MXE_USE_CCACHE= gcc
+      - name: Build SDL2
+        working-directory: /opt/mxe
+        run: |
+          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 MXE_USE_CCACHE= sdl2
+      - name: Build SDL2_ttf
+        working-directory: /opt/mxe
+        run: |
+          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 MXE_USE_CCACHE= sdl2_ttf
+      - name: Build SDL2_image
+        working-directory: /opt/mxe
+        run: |
+          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 MXE_USE_CCACHE= sdl2_image
+      - name: Build SDL2_mixer
+        working-directory: /opt/mxe
+        run: |
+          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 MXE_USE_CCACHE= sdl2_mixer
+      - name: Archive MXE
+        run: |
+          tar -cJf mxe-${{ matrix.arch }}.tar.xz -C /opt mxe/usr
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: mxe-${{ matrix.arch }}
+          path: mxe-${{ matrix.arch }}.tar.xz
+      - name: Verify MXE GCC
+        run: |
+          export PATH=/opt/mxe/usr/bin/:$PATH
+          ${{ matrix.arch }}-w64-mingw32.static.gcc11-g++ -v
+          cat << EOF > test.cpp
+          #include <iostream>
+          int main() {
+            std::cout << "Hello, world!" << std::endl;
+            return 0;
+          }
+          EOF
+          ${{ matrix.arch }}-w64-mingw32.static.gcc11-g++ test.cpp -o test.exe
+          ${{ matrix.wine }} test.exe
+
