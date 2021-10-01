@@ -13,10 +13,8 @@ jobs:
         include:
           - name: Build MXE (x86)
             arch: i686
-            wine: wine
           - name: Build MXE (x64)
             arch: x86_64
-            wine: wine64
     name: ${{ matrix.name }}
     runs-on: ubuntu-20.04
     steps:
@@ -57,11 +55,16 @@ jobs:
         with:
           name: mxe-${{ matrix.arch }}
           path: mxe-${{ matrix.arch }}.tar.xz
-      - name: Install wine
+      - name: Install 32-bit wine
+        if: ${{ matrix.arch == 'i686' }}
         run: |
           sudo dpkg --add-architecture i386
           sudo apt update
-          sudo apt install -y wine wine32
+          sudo apt install -y wine32
+      - name: Install 64-bit wine
+        if: ${{ matrix.arch == 'x86_64' }}
+        run: |
+          sudo apt install -y wine64
       - name: Verify MXE GCC
         run: |
           export PATH=/opt/mxe/usr/bin/:$PATH
@@ -74,5 +77,5 @@ jobs:
           }
           EOF
           ${{ matrix.arch }}-w64-mingw32.static.gcc11-g++ test.cpp -o test.exe
-          ${{ matrix.wine }} test.exe
+          wine test.exe
 
