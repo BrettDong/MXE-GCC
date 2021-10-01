@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install -y autoconf automake autopoint bash bison bzip2 cmake flex g++ g++-multilib gettext git libglib2.0-dev gperf intltool libboost-dev libc6-dev-i386 libffi-dev libgdk-pixbuf2.0-dev libltdl-dev libssl-dev libtool-bin libxml-parser-perl lzip make openssl p7zip-full patch perl pkgconf python ruby sed unzip wget wine xz-utils zlib1g-dev
+          sudo apt install -y autoconf automake autopoint bash bison bzip2 cmake flex g++ g++-multilib gettext git libglib2.0-dev gperf intltool libboost-dev libc6-dev-i386 libffi-dev libgdk-pixbuf2.0-dev libltdl-dev libssl-dev libtool-bin libxml-parser-perl lzip make openssl p7zip-full patch perl pkgconf python ruby sed unzip wget xz-utils zlib1g-dev
       - name: Clone MXE Repo
         working-directory: /opt
         run: |
@@ -51,11 +51,17 @@ jobs:
       - name: Archive MXE
         run: |
           tar -cJf mxe-${{ matrix.arch }}.tar.xz -C /opt mxe/usr
+          sha256sum mxe-${{ matrix.arch }}.tar.xz
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: mxe-${{ matrix.arch }}
           path: mxe-${{ matrix.arch }}.tar.xz
+      - name: Install wine
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt update
+          sudo apt install -y wine wine32
       - name: Verify MXE GCC
         run: |
           export PATH=/opt/mxe/usr/bin/:$PATH
