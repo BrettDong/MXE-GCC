@@ -15,22 +15,22 @@ jobs:
           sudo apt update
           sudo apt install -y autoconf automake autopoint bash bison bzip2 flex g++ g++-multilib gettext git gperf intltool libc6-dev-i386 libgdk-pixbuf2.0-dev libltdl-dev libssl-dev libtool-bin libxml-parser-perl lzip make openssl p7zip-full patch perl python ruby sed unzip wget xz-utils
       - name: Clone MXE Repo
+        working-directory: /opt
         run: |
-          git clone https://github.com/mxe/mxe
+          sudo git clone https://github.com/mxe/mxe
       - name: Build GCC 11
-        working-directory: ./mxe
+        working-directory: /opt/mxe
         run: |
-          make MXE_TARGETS=x86_64-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 gcc
-      - name: Build SDL
-        working-directory: ./mxe
+          sudo make MXE_TARGETS=x86_64-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 gcc
+      - name: Archive MXE
         run: |
-          make MXE_TARGETS=x86_64-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 sdl2 sdl2_ttf sdl2_image sdl2_mixer
+          tar -cJf mxe.tar.xz /opt/mxe/usr
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: cross-gcc
-          path: ./mxe/usr
+          name: mxe-gcc11
+          path: mxe.tar.xz
       - name: Verify MXE GCC
         run: |
-          ./mxe/usr/bin/x86_64-w64-mingw32.static.gcc11-g++ -v
+          /opt/mxe/usr/bin/x86_64-w64-mingw32.static.gcc11-g++ -v
 
