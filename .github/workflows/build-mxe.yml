@@ -31,10 +31,18 @@ jobs:
         run: |
           sudo wget https://raw.githubusercontent.com/BrettDong/MXE-GCC/master/freetype-2.10.4.patch
           sudo git am freetype-2.10.4.patch
+      - name: Integrate libbacktrace
+        working-directory: /opt/mxe
+        run: |
+          sudo wget https://raw.githubusercontent.com/BrettDong/MXE-GCC/master/libbacktrace.mk -P src
       - name: Build GCC 11
         working-directory: /opt/mxe
         run: |
           sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 MXE_USE_CCACHE= gcc
+      - name: Build libbacktrace
+        working-directory: /opt/mxe
+        run: |
+          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 MXE_USE_CCACHE= libbacktrace
       - name: Build SDL2
         working-directory: /opt/mxe
         run: |
