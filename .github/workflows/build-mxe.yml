@@ -35,30 +35,30 @@ jobs:
         working-directory: /opt/mxe
         run: |
           sudo wget https://raw.githubusercontent.com/BrettDong/MXE-GCC/master/libbacktrace.mk -P src
-      - name: Build GCC 11
+      - name: Build GCC 9
         working-directory: /opt/mxe
         run: |
-          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 MXE_USE_CCACHE= gcc
+          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc9 MXE_PLUGIN_DIRS=plugins/gcc9 MXE_USE_CCACHE= gcc
       - name: Build libbacktrace
         working-directory: /opt/mxe
         run: |
-          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 MXE_USE_CCACHE= libbacktrace
+          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc9 MXE_PLUGIN_DIRS=plugins/gcc9 MXE_USE_CCACHE= libbacktrace
       - name: Build SDL2
         working-directory: /opt/mxe
         run: |
-          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 MXE_USE_CCACHE= sdl2
+          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc9 MXE_PLUGIN_DIRS=plugins/gcc9 MXE_USE_CCACHE= sdl2
       - name: Build SDL2_ttf
         working-directory: /opt/mxe
         run: |
-          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 MXE_USE_CCACHE= sdl2_ttf
+          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc9 MXE_PLUGIN_DIRS=plugins/gcc9 MXE_USE_CCACHE= sdl2_ttf
       - name: Build SDL2_image
         working-directory: /opt/mxe
         run: |
-          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 MXE_USE_CCACHE= sdl2_image
+          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc9 MXE_PLUGIN_DIRS=plugins/gcc9 MXE_USE_CCACHE= sdl2_image
       - name: Build SDL2_mixer
         working-directory: /opt/mxe
         run: |
-          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc11 MXE_PLUGIN_DIRS=plugins/gcc11 MXE_USE_CCACHE= sdl2_mixer
+          sudo make MXE_TARGETS=${{ matrix.arch }}-w64-mingw32.static.gcc9 MXE_PLUGIN_DIRS=plugins/gcc9 MXE_USE_CCACHE= sdl2_mixer
       - name: Archive MXE
         run: |
           tar -cJf mxe-${{ matrix.arch }}.tar.xz -C /opt mxe/usr
@@ -81,7 +81,7 @@ jobs:
       - name: Verify MXE GCC
         run: |
           export PATH=/opt/mxe/usr/bin/:$PATH
-          ${{ matrix.arch }}-w64-mingw32.static.gcc11-g++ -v
+          ${{ matrix.arch }}-w64-mingw32.static.gcc9-g++ -v
           cat << EOF > test.cpp
           #include <iostream>
           int main() {
@@ -89,6 +89,6 @@ jobs:
             return 0;
           }
           EOF
-          ${{ matrix.arch }}-w64-mingw32.static.gcc11-g++ test.cpp -o test.exe
+          ${{ matrix.arch }}-w64-mingw32.static.gcc9-g++ test.cpp -o test.exe
           wine test.exe
 
