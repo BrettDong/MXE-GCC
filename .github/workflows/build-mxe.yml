@@ -26,11 +26,6 @@ jobs:
         working-directory: /opt
         run: |
           sudo git clone https://github.com/mxe/mxe
-      - name: Apply FreeType version rollback patch
-        working-directory: /opt/mxe
-        run: |
-          sudo wget https://raw.githubusercontent.com/BrettDong/MXE-GCC/master/freetype-2.10.4.patch
-          sudo git am freetype-2.10.4.patch
       - name: Integrate libbacktrace
         working-directory: /opt/mxe
         run: |
